@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PS4 Controller Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #controller-status {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #button-list {
+            display: flex;
+            justify-content: center;
+        }
+        .button {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            border: 2px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>PS4 Controller Tester</h1>
+    <div id="controller-status">Connect your PS4 controller and press buttons/axes:</div>
+    <div id="button-list">
+        <div class="button" id="button-square">Square</div>
+        <div class="button" id="button-triangle">Triangle</div>
+        <div class="button" id="button-circle">Circle</div>
+        <div class="button" id="button-cross">Cross</div>
+        <div class="button" id="button-l1">L1</div>
+        <div class="button" id="button-l2">L2</div>
+        <div class="button" id="button-r1">R1</div>
+        <div class="button" id="button-r2">R2</div>
+        <div class="button" id="button-share">Share</div>
+        <div class="button" id="button-options">Options</div>
+        <div class="button" id="button-l3">L3</div>
+        <div class="button" id="button-r3">R3</div>
+        <div class="button" id="button-ps">PS</div>
+        <div class="button" id="button-touchpad">Touchpad</div>
+    </div>
+
+    <script>
+        const buttons = [
+            
+            'button-square',
+            'button-cross',    // Cross and Square corrected
+            'button-circle',   // Circle and Triangle corrected
+            'button-triangle', // Triangle and Cross corrected
+            'button-l1',
+            'button-r1',       // R1 and L2 corrected
+            'button-l2',       // L2 and R1 corrected
+            'button-r2',
+            'button-share',
+            'button-options',
+            'button-l3',
+            'button-r3',
+            'button-ps',
+            'button-touchpad'
+];
+
+        const buttonStatus = {};
+
+        // Initialize buttonStatus
+        buttons.forEach(button => {
+            buttonStatus[button] = false;
+        });
+
+        // Function to update button status
+        function updateButtonStatus(button, status) {
+            buttonStatus[button] = status;
+            document.getElementById('controller-status').innerText = `Button ${button} is ${status ? 'pressed' : 'released'}`;
+        }
+
+        // Function to handle button clicks
+        function buttonClick(button) {
+            updateButtonStatus(button, true);
+            setTimeout(() => {
+                updateButtonStatus(button, false);
+            }, 100);
+        }
+
+        // Add click event listeners to buttons
+        buttons.forEach(button => {
+            document.getElementById(button).addEventListener('click', () => {
+                buttonClick(button);
+            });
+        });
+
+        // Add event listener for gamepad connection
+        window.addEventListener('gamepadconnected', (e) => {
+            const gamepad = e.gamepad;
+            console.log(`Gamepad connected: ${gamepad.id}`);
+        });
+
+        // Update button status continuously
+        function update() {
+            const gamepads = navigator.getGamepads();
+            for (let i = 0; i < gamepads.length; i++) {
+                const gamepad = gamepads[i];
+                if (gamepad) {
+                    // Check button status
+                    buttons.forEach(button => {
+                        const buttonIndex = buttons.indexOf(button);
+                        const isPressed = gamepad.buttons[buttonIndex].pressed;
+                        if (buttonStatus[button] !== isPressed) {
+                            updateButtonStatus(button, isPressed);
+                        }
+                    });
+
+                    // Check analog stick status
+                    const leftStickX = gamepad.axes[0];
+                    const leftStickY = gamepad.axes[1];
+                    const rightStickX = gamepad.axes[2];
+                    const rightStickY = gamepad.axes[3];
+
+                    // You can handle analog stick values here as needed
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Start updating button status
+        update();
+    </script>
+</body>
+</html>
